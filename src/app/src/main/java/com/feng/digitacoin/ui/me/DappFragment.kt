@@ -1,4 +1,4 @@
-package com.feng.digitacoin.ui.fragment
+package com.feng.digitacoin.ui.me
 
 import android.os.Bundle
 import android.util.Log
@@ -15,7 +15,7 @@ import com.feng.digitacoin.ui.BaseFragment
  * @description
  * @copyright (c) 2018 Newton Foundation. All rights reserved.
  */
-class MeFragment: BaseFragment() {
+class DappFragment: BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -30,7 +30,9 @@ class MeFragment: BaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Log.d(TAG, "OnCreateView")
-        return LayoutInflater.from(context).inflate(R.layout.fragment_me, container, false)
+        //View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_me, container, false);
+        return LayoutInflater.from(context).inflate(R.layout.fragment_dapp, container, false)
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

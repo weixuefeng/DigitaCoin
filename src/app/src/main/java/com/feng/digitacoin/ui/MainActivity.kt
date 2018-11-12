@@ -3,22 +3,25 @@ package com.feng.digitacoin.ui
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.view.ViewPager
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
 import com.feng.digitacoin.R
 import com.feng.digitacoin.ui.adapter.MainViewPagerAdapter
-import com.feng.digitacoin.ui.fragment.DappFragment
-import com.feng.digitacoin.ui.fragment.HomeFragment
-import com.feng.digitacoin.ui.fragment.MeFragment
+import com.feng.digitacoin.ui.me.DappFragment
+import com.feng.digitacoin.ui.me.HomeFragment
+import com.feng.digitacoin.ui.me.MeFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : BaseActivity(), ViewPager.OnPageChangeListener {
+class MainActivity : AppCompatActivity(), ViewPager.OnPageChangeListener {
+    val TAG = "MainActivity"
 
     override fun onPageScrollStateChanged(state: Int) {
 
     }
 
     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+
     }
 
     override fun onPageSelected(position: Int) {

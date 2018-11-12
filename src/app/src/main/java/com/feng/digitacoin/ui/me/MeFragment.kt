@@ -1,12 +1,14 @@
-package com.feng.digitacoin.ui.fragment
+package com.feng.digitacoin.ui.me
 
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import com.feng.digitacoin.R
 import com.feng.digitacoin.ui.BaseFragment
+import kotlinx.android.synthetic.main.fragment_me.view.*
 
 /**
  * @author weixuefeng@lubangame.com
@@ -15,7 +17,15 @@ import com.feng.digitacoin.ui.BaseFragment
  * @description
  * @copyright (c) 2018 Newton Foundation. All rights reserved.
  */
-class DappFragment: BaseFragment() {
+class MeFragment: BaseFragment(), CompoundButton.OnCheckedChangeListener {
+    override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+        if(isChecked) {
+            Log.e(TAG, "Checed")
+        }else{
+            Log.e(TAG, "Unchecked")
+        }
+    }
+
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -29,10 +39,9 @@ class DappFragment: BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Log.d(TAG, "OnCreateView")
-        //View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_me, container, false);
-        return LayoutInflater.from(context).inflate(R.layout.fragment_dapp, container, false)
-
+        val view = LayoutInflater.from(context).inflate(R.layout.fragment_me, container, false)
+        view.securitySwitch.setOnCheckedChangeListener(this)
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

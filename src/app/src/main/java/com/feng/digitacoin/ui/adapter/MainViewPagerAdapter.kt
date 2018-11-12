@@ -14,6 +14,7 @@ import com.feng.digitacoin.ui.BaseFragment
  * @copyright (c) 2018 Newton Foundation. All rights reserved.
  */
 class MainViewPagerAdapter(fragmentManager: FragmentManager, list: List<Pair<Int, BaseFragment>>): FragmentPagerAdapter(fragmentManager) {
+
     private val fragmentPair = list
 
     override fun getItem(position: Int): Fragment = fragmentPair[position].second

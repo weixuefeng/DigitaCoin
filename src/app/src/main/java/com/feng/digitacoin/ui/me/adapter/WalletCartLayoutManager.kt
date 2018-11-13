@@ -132,7 +132,7 @@ class WalletCartLayoutManager(private val context: Context?) : RecyclerView.Layo
         var endIndex = mFirstVisibleItemPos + 2
         if(endIndex > itemCount) endIndex = itemCount
         for(position in mFirstVisibleItemPos .. endIndex) {
-            if(position > itemCount) break
+            if(position >= itemCount) break
             needListViews.put(position, recycler!!.getViewForPosition(position))
         }
         return needListViews

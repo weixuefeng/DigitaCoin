@@ -13,5 +13,5 @@
         app:layout_constraintTop_toBottomOf="@id/text"
         android:id="@+id/walletRecycleView"
         android:layout_width="match_parent"
-        android:layout_height="500dp"/>
+        android:layout_height="match_parent"/>
 </android.support.constraint.ConstraintLayout>

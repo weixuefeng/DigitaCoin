@@ -12,7 +12,9 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 
+import java.io.PipedOutputStream;
 import java.util.List;
 
 /**
@@ -22,15 +24,21 @@ import java.util.List;
  * @description
  * @copyright (c) 2018 Newton Foundation. All rights reserved.
  */
-public class CardLayoutManager extends LayoutManager{
+public class CardLayoutManager extends LayoutManager implements RecyclerView.SmoothScroller.ScrollVectorProvider {
 
     private final String TAG = "CardLayoutManager";
 
     // x 方向的偏移距离
     private int mXoffset = 0;
 
+    // x 方向的偏移距离
+    private int mYoffset = 0;
+
     // 所有view的移动范围
     private int mTotalWidth = 0;
+
+    // 所有view的移动范围
+    private int mTotalHeight = 0;
 
     // 子 view 的测量宽度
     private int childViewMeasureWidth = 0;
@@ -41,6 +49,9 @@ public class CardLayoutManager extends LayoutManager{
     // 子view实际占据宽度（测量宽度+间隙）
     private int childViewWidth = 0;
 
+    // 子view实际占据高度（测量高度+间隙）
+    private int childViewHeight = 0;
+
     // 起始 view 距离左右单边的距离
     private int startWidthSpace = 0;
 
@@ -49,6 +60,9 @@ public class CardLayoutManager extends LayoutManager{
 
     // 两个view之间的间隙
     private int widthSpace = 0;
+
+    // 两个view之间的间隙
+    private int heightSpace = 0;
 
     // 自动选中的动画移动时间
     private long mFixingAnimationDuration = 200L;
@@ -83,6 +97,13 @@ public class CardLayoutManager extends LayoutManager{
     // 当前选中的监听
     private OnItemSelectedListener onItemSelectedListener;
 
+    private int mOrientation = LinearLayout.VERTICAL;
+
+    public CardLayoutManager(@RecyclerView.Orientation int orientation) {
+        super();
+        mOrientation = orientation;
+    }
+
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -109,13 +130,20 @@ public class CardLayoutManager extends LayoutManager{
             measureChildWithMargins(childView, 0, 0);
             childViewMeasureWidth = getDecoratedMeasuredWidth(childView);
             childViewMeasureHeight = getDecoratedMeasuredHeight(childView);
+            // 两边的item居中，todo: 可以配置
             startWidthSpace = (mWidth - childViewMeasureWidth) / 2;
-            //startHeightSpace = (mHeight - childViewMeasureHeight) / 2;
-            startHeightSpace = 0;
-            widthSpace = startWidthSpace / 2;
-
-            childViewWidth = childViewMeasureWidth + widthSpace;
-            mTotalWidth = (getItemCount() - 1) * childViewWidth;
+            startHeightSpace = (mHeight - childViewMeasureHeight) / 2;
+            //startHeightSpace = 0;
+            if(mOrientation == LinearLayout.HORIZONTAL) {
+                widthSpace = startWidthSpace / 2;
+                childViewWidth = childViewMeasureWidth + widthSpace;
+                mTotalWidth = (getItemCount() - 1) * childViewWidth;
+            }
+            if(mOrientation == LinearLayout.VERTICAL) {
+                heightSpace = startHeightSpace / 2;
+                childViewHeight = childViewMeasureHeight + heightSpace;
+                mTotalHeight = (getItemCount() - 1) * childViewHeight;
+            }
             layoutChildView(recycler, state);
         }
 
@@ -138,17 +166,32 @@ public class CardLayoutManager extends LayoutManager{
             if(childView != null) {
                 addView(childView);
                 measureChildWithMargins(childView, 0 ,0);
-                int left = startWidthSpace + position * childViewWidth + mXoffset;
-                int right = left + childViewMeasureWidth;
-                layoutDecoratedWithMargins(childView, left, startHeightSpace, right, startHeightSpace + childViewMeasureHeight);
-                int distance = 0;
-                if(left > startWidthSpace) {
-                    distance = left - startWidthSpace;
-                }else {
-                    distance = startWidthSpace - left;
+                if(mOrientation == LinearLayout.HORIZONTAL) {
+                    int left = startWidthSpace + position * childViewWidth + mXoffset;
+                    int right = left + childViewMeasureWidth;
+                    layoutDecoratedWithMargins(childView, left, startHeightSpace, right, startHeightSpace + childViewMeasureHeight);
+                    int distance = 0;
+                    if(left > startWidthSpace) {
+                        distance = left - startWidthSpace;
+                    }else {
+                        distance = startWidthSpace - left;
+                    }
+                    float scale = 1 - ((1 - xScale) * distance) / childViewWidth;
+                    childView.setScaleY(scale);
+                }else{
+                    int top = startHeightSpace + position * childViewHeight + mYoffset;
+                    int bottom = top + childViewMeasureHeight;
+                    layoutDecoratedWithMargins(childView, startWidthSpace, top, startWidthSpace + childViewMeasureWidth, bottom);
+                    int distance = 0;
+                    if(top > startHeightSpace) {
+                        distance = top - startHeightSpace;
+                    }else {
+                        distance = startHeightSpace - top;
+                    }
+                    float scale = 1 - ((1 - xScale) * distance) / childViewHeight;
+                    childView.setScaleX(scale);
                 }
-                float scale = 1 - ((1 - xScale) * distance) / childViewWidth;
-                childView.setScaleY(scale);
+
                 //childView.setAlpha(scale);
             }
         }
@@ -160,7 +203,11 @@ public class CardLayoutManager extends LayoutManager{
         float currentDistance;
         int totalCount = getItemCount();
         for(int position = 0; position < totalCount; position++) {
-            currentDistance = (position) * childViewWidth + childViewMeasureWidth + startWidthSpace + mXoffset;
+            if(mOrientation == LinearLayout.HORIZONTAL) {
+                currentDistance = (position) * childViewWidth + childViewMeasureWidth + startWidthSpace + mXoffset;
+            }else{
+                currentDistance = (position) * childViewHeight + childViewMeasureHeight + startHeightSpace + mYoffset;
+            }
             if(currentDistance >= 0) {
                 mFirstVisibleItemPosition = position;
                 break;
@@ -175,7 +222,6 @@ public class CardLayoutManager extends LayoutManager{
             if(position >= totalCount) break;
             View childView = mRecycler.getViewForPosition(position);
             if(childView != null) {
-                Log.e(TAG, "position:" + position);
                 needLayoutItems.put(position, childView);
             }
         }
@@ -193,7 +239,12 @@ public class CardLayoutManager extends LayoutManager{
 
     @Override
     public boolean canScrollHorizontally() {
-        return true;
+        return mOrientation == LinearLayout.HORIZONTAL;
+    }
+
+    @Override
+    public boolean canScrollVertically() {
+        return mOrientation == LinearLayout.VERTICAL;
     }
 
     @Override
@@ -213,6 +264,25 @@ public class CardLayoutManager extends LayoutManager{
         }
         layoutChildView(recycler, state);
         return tempDx;
+    }
+
+    @Override
+    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
+        mRecycler = recycler;
+        mState = state;
+        detachAndScrapAttachedViews(recycler);
+        int tempDy = dy;
+        mYoffset -= dy;
+        if(mYoffset > 0) {
+            mYoffset = 0;
+            tempDy = 0;
+        }
+        if(mYoffset < -mTotalHeight) {
+            mYoffset = -mTotalHeight;
+            tempDy = 0;
+        }
+        layoutChildView(recycler, state);
+        return tempDy;
     }
 
     @Override
@@ -236,9 +306,16 @@ public class CardLayoutManager extends LayoutManager{
         stopSmoothAnimation();
         View childView = mRecycler.getViewForPosition(position);
         if(childView != null) {
-            int offset = childView.getLeft() - startWidthSpace;
-            int prePosition = mXoffset;
-            int targetPosition = mXoffset - offset;
+            int offset, prePosition, targetPosition;
+            if(mOrientation == LinearLayout.HORIZONTAL) {
+                offset = childView.getLeft() - startWidthSpace;
+                prePosition = mXoffset;
+                targetPosition = mXoffset - offset;
+            }else{
+                offset = childView.getTop() - startHeightSpace;
+                prePosition = mYoffset;
+                targetPosition = mYoffset - offset;
+            }
             if(offset == 0) return;
             animator = ValueAnimator.ofInt(prePosition, targetPosition).setDuration(mFixingAnimationDuration);
             ((ValueAnimator) animator).addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -253,7 +330,11 @@ public class CardLayoutManager extends LayoutManager{
                     if(mLastScrollOffset != 0) {
                         int dx = currentValue - mLastScrollOffset;
                         if(dx == 0) return;
-                        mXoffset += dx;
+                        if(mOrientation == LinearLayout.HORIZONTAL) {
+                            mXoffset += dx;
+                        }else{
+                            mYoffset += dx;
+                        }
                         requestLayout();
                     }
                     mLastScrollOffset = currentValue;
@@ -289,16 +370,40 @@ public class CardLayoutManager extends LayoutManager{
     }
 
     private int findClosestPosition() {
-        int position = (int) (Math.abs(mXoffset) / childViewWidth);
-        float remainder = Math.abs(mXoffset) % childViewWidth;
-        if(remainder > childViewWidth / 2) {
-            position = position + 1;
+        int position;
+        float remainder;
+        if(mOrientation == LinearLayout.HORIZONTAL) {
+            position = (int) (Math.abs(mXoffset) / childViewWidth);
+            remainder = Math.abs(mXoffset) % childViewWidth;
+            if(remainder > childViewWidth / 2) {
+                position = position + 1;
+            }
+        }else{
+            position = (int) (Math.abs(mYoffset) / childViewHeight);
+            remainder = Math.abs(mYoffset) % childViewHeight;
+            if(remainder > childViewHeight / 2) {
+                position = position + 1;
+            }
         }
         return position;
     }
 
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         this.onItemSelectedListener = listener;
+    }
+
+    @Override
+    public PointF computeScrollVectorForPosition(int targetPosition) {
+        if (getChildCount() == 0) {
+            return null;
+        }
+        final int firstChildPos = getPosition(getChildAt(0));
+        final int direction = targetPosition < firstChildPos ? -1 : 1;
+        if (mOrientation == LinearLayout.HORIZONTAL) {
+            return new PointF(direction, 0);
+        } else {
+            return new PointF(0, direction);
+        }
     }
 
     public interface OnItemSelectedListener {

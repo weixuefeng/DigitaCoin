@@ -1,14 +1,13 @@
 package com.feng.digitacoin.ui.me
 
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.LinearSnapHelper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.feng.digitacoin.R
+import com.feng.digitacoin.entity.DateBean
 import com.feng.digitacoin.ui.BaseFragment
 import com.feng.digitacoin.ui.me.adapter.CardLayoutManager
 import com.feng.digitacoin.ui.me.adapter.WalletRecyclerViewAdapter
@@ -46,6 +45,15 @@ class HomeFragment: BaseFragment() {
         val list = listOf<String>(
                 "2000-1-1",
                 "2000-1-2",
+                "2000-1-3",
+                "2000-1-4",
+                "2000-1-5",
+                "2000-1-6",
+                "2000-1-7",
+                "2000-1-8",
+                "2000-1-9",
+                "2000-1-10",
+                "2000-2-10",
                 "2001-2-1",
                 "2001-3-2",
                 "2001-3-3",
@@ -61,42 +69,59 @@ class HomeFragment: BaseFragment() {
                 "2002-9-14"
         )
 
-        val years : Array<String> = Array()
-        val month : Array<Array<String>>
-        val day : Array<Array<Array<String>>>
+        val dateBean = DateBean(list.toTypedArray())
+        val yearDate = dateBean.yearSet
+        val monthDate = dateBean.monthMap
+        val dayDate = dateBean.dayMap
 
-        list.forEach { val time = it.split("-")
-            years[it.indices.first] = time[0]
+        var defaultYear = yearDate[0]
+        var defaultMonth = monthDate[defaultYear]
+        Log.e(TAG, "default year:" + defaultYear)
+        Log.e(TAG, "default month:" + defaultMonth!![0])
+        var key = defaultYear + "-" + defaultMonth[0]
+        Log.e(TAG, "key:" + key)
+        var defaultDay = dayDate[key]
+
+        val yearLayoutManager = CardLayoutManager(LinearLayout.VERTICAL)
+        val monthLayoutManager = CardLayoutManager(LinearLayout.VERTICAL)
+        val dayLayoutManager = CardLayoutManager(LinearLayout.VERTICAL)
+
+        val yearAdapter = WalletRecyclerViewAdapter(yearDate)
+        val monthAdapter = WalletRecyclerViewAdapter(defaultMonth)
+        val dayAdapter = WalletRecyclerViewAdapter(defaultDay)
+
+        view.yearRecycleView.layoutManager = yearLayoutManager
+        view.monthRecycleView.layoutManager = monthLayoutManager
+        view.dayRecycleView.layoutManager = dayLayoutManager
+
+        view.yearRecycleView.adapter = yearAdapter
+        view.monthRecycleView.adapter = monthAdapter
+        view.dayRecycleView.adapter = dayAdapter
+
+        var currentYear = ""
+        var currentMonth = ""
+
+        yearLayoutManager.setOnItemSelectedListener { position -> Log.e(TAG, "selected position is : $position") }
+        yearLayoutManager.setOnItemSelectedListener {
+            currentYear = yearDate[it]
+            defaultMonth = monthDate[currentYear]
+            monthAdapter.setDate(defaultMonth)
+            monthLayoutManager.smoothScrollToPosition(null, null,0)
+            currentMonth = defaultMonth!![0]
+            defaultDay = dayDate["$currentYear-$currentMonth"]
+            dayAdapter.setDate(defaultDay)
+            dayLayoutManager.smoothScrollToPosition(null, null, 0)
         }
 
-
-        val adapter = CardLayoutManager(LinearLayout.VERTICAL)
-        view.dayRecycleView.layoutManager = adapter
-        adapter.setOnItemSelectedListener { position -> Log.e(TAG, "selected position is : $position") }
-        var source = arrayListOf<String>()
-        for (i in 2000..2018) {
-            source.add(i.toString())
+        monthLayoutManager.setOnItemSelectedListener { position -> Log.e(TAG, "selected position is : $position") }
+        monthLayoutManager.setOnItemSelectedListener {
+            currentMonth = defaultMonth!![it]
+            defaultDay = dayDate["$currentYear-$currentMonth"]
+            dayAdapter.setDate(defaultDay)
+            dayLayoutManager.smoothScrollToPosition(null, null, 0)
         }
-        view.dayRecycleView.adapter = WalletRecyclerViewAdapter(source)
 
+        dayLayoutManager.setOnItemSelectedListener { position -> Log.e(TAG, "selected position is : $position") }
 
-        val adapter1 = CardLayoutManager(LinearLayout.VERTICAL)
-        view.monthRecycleView.layoutManager = adapter1
-        adapter1.setOnItemSelectedListener { position -> Log.e(TAG, "selected position is : $position") }
-        var source2 = arrayListOf<String>()
-        for (i in 1..12) {
-            source2.add(i.toString())
-        }
-        view.monthRecycleView.adapter = WalletRecyclerViewAdapter(source2)
-
-
-        val adapter2 = CardLayoutManager(LinearLayout.VERTICAL)
-        view.yearRecycleView.layoutManager = adapter2
-        adapter2.setOnItemSelectedListener { position -> Log.e(TAG, "selected position is : $position") }
-        var source1 = arrayListOf<String>()
-        for (i in 1..31) {
-            source1.add(i.toString())
-        }
-        view.yearRecycleView.adapter = WalletRecyclerViewAdapter(source1)
     }
 }

@@ -1,20 +1,17 @@
-package com.feng.digitacoin.ui.me.adapter;
+package org.newtonproject.newpay.android.ui.widget;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.graphics.PointF;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.LinearLayout;
 
-import java.io.PipedOutputStream;
 import java.util.List;
 
 /**
@@ -97,6 +94,10 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
     // 当前选中的监听
     private OnItemSelectedListener onItemSelectedListener;
 
+    // 是否无限滚动
+    private boolean isUnLimited = true;
+
+    // 滚动方向
     private int mOrientation = LinearLayout.VERTICAL;
 
     public CardLayoutManager(@RecyclerView.Orientation int orientation) {
@@ -177,7 +178,9 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
                         distance = startWidthSpace - left;
                     }
                     float scale = 1 - ((1 - xScale) * distance) / childViewWidth;
-                    childView.setScaleY(scale);
+                    childView.setScaleX(scale);
+                    childView.setAlpha(scale);
+
                 }else{
                     int top = startHeightSpace + position * childViewHeight + mYoffset;
                     int bottom = top + childViewMeasureHeight;
@@ -189,10 +192,9 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
                         distance = startHeightSpace - top;
                     }
                     float scale = 1 - ((1 - xScale) * distance) / childViewHeight;
-                    childView.setScaleX(scale);
+                    childView.setScaleY(scale);
+                    childView.setAlpha(scale);
                 }
-
-                //childView.setAlpha(scale);
             }
         }
     }
@@ -299,6 +301,26 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
         smoothScrollToPosition(position);
     }
 
+    @Override
+    public void scrollToPosition(int position) {
+        if(position < 0 || position >= getItemCount()) {
+            throw new IllegalArgumentException(String.format("current position is %s, but total itemCount is %s", position, getItemCount()));
+        }
+        stopSmoothAnimation();
+        View childView = mRecycler.getViewForPosition(position);
+        if(childView != null) {
+            int offset;
+            if (mOrientation == LinearLayout.HORIZONTAL) {
+                offset = childView.getLeft() - startWidthSpace;
+                mXoffset = mXoffset - offset;
+            } else {
+                offset = childView.getTop() - startHeightSpace;
+                mYoffset = mYoffset - offset;
+            }
+            requestLayout();
+        }
+    }
+
     private void smoothScrollToPosition(final int position) {
         if(position < 0 || position > getItemCount()) {
             throw new IllegalArgumentException(String.format("current position is %s, but total itemCount is %s", position, getItemCount()));
@@ -332,8 +354,22 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
                         if(dx == 0) return;
                         if(mOrientation == LinearLayout.HORIZONTAL) {
                             mXoffset += dx;
+                            if(mXoffset >= 0){
+                                mXoffset = 0;
+                            }
+                            if(mXoffset <= -mTotalWidth){
+                                mXoffset = -mTotalWidth;
+                            }
+                            Log.e(TAG, "mXoffset：" + mXoffset);
                         }else{
                             mYoffset += dx;
+                            if(mYoffset >= 0){
+                                mYoffset = 0;
+                            }
+                            if(mYoffset <= -mTotalHeight){
+                                mYoffset = -mTotalHeight;
+                            }
+                            Log.e(TAG, "mYoffset：" + mYoffset);
                         }
                         requestLayout();
                     }
@@ -357,7 +393,12 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
                     }
                 }
             });
-            animator.start();
+            postOnAnimation(new Runnable() {
+                @Override
+                public void run() {
+                    animator.start();
+                }
+            });
         }else{
             Log.e(TAG, String.format("smoothScrollToPosition position %s childview is null", position));
         }
@@ -409,4 +450,6 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
     public interface OnItemSelectedListener {
         void onSelected(int position);
     }
+
+
 }

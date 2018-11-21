@@ -1,5 +1,9 @@
 package com.feng.digitacoin.entity;
 
+import android.support.v7.util.SortedList;
+
+import java.util.HashMap;
+
 /**
  * @author weixuefeng@lubangame.com
  * @version $Rev$
@@ -7,31 +11,90 @@ package com.feng.digitacoin.entity;
  * @description
  * @copyright (c) 2018 Newton Foundation. All rights reserved.
  */
-public class DateBean {
+public class DateBean extends SortedList.Callback<String> {
 
-    final String[] strings = new String[] {
-            "2000-1-1",
-            "2000-1-2",
-            "2001-2-1",
-            "2001-3-2",
-            "2001-3-3",
-            "2001-3-4",
-            "2001-3-5",
-            "2001-3-6",
-            "2001-3-7",
-            "2002-5-8",
-            "2002-5-10",
-            "2002-6-1",
-            "2002-6-5",
-            "2002-7-1",
-            "2002-9-14"
-    };
-    public String[] years = new String[]{};
-    public String[] months;
-    public String[] days;
-    public DateBean() {
-        for(int i = 0; i < strings.length; i ++) {
-            String[] time = strings[i].split("-");
+    private SortedList<String> yearSet = new SortedList<String>(String.class, this);
+
+    private HashMap<String, SortedList<String>> monthMap = new HashMap<>();
+
+    private HashMap<String, SortedList<String>> dayMap = new HashMap<>();
+
+    public SortedList<String> getYearSet() {
+        return yearSet;
+    }
+
+    public HashMap<String, SortedList<String>> getMonthMap() {
+        return monthMap;
+    }
+
+    public HashMap<String, SortedList<String>> getDayMap() {
+        return dayMap;
+    }
+
+    public DateBean(String[] timeSet) {
+        if(timeSet != null && timeSet.length > 0) {
+            for(int i = 0; i < timeSet.length; i ++) {
+                String times = timeSet[i];
+                String[] time = times.split("-");
+                String year = time[0];
+                String month = time[1];
+                String day = time[2];
+                String dayKey = year + "-" + month;
+
+                yearSet.add(year);
+
+                if(monthMap.containsKey(year)) {
+                    monthMap.get(year).add(month);
+                }else{
+                    SortedList<String> monthSet = new SortedList<String>(String.class, this);
+                    monthSet.add(month);
+                    monthMap.put(year,monthSet);
+                }
+
+                if(dayMap.containsKey(dayKey)) {
+                    dayMap.get(dayKey).add(day);
+                }else{
+                    SortedList<String> daySet = new SortedList<String>(String.class, this);
+                    daySet.add(day);
+                    dayMap.put(dayKey, daySet);
+                }
+            }
         }
     }
+
+    @Override
+    public int compare(String o1, String o2) {
+        return Integer.valueOf(o1).compareTo(Integer.valueOf(o2));
+    }
+
+    @Override
+    public void onChanged(int position, int count) {
+
+    }
+
+    @Override
+    public boolean areContentsTheSame(String oldItem, String newItem) {
+        return Integer.valueOf(oldItem).equals(Integer.valueOf(newItem));
+    }
+
+    @Override
+    public boolean areItemsTheSame(String item1, String item2) {
+        return Integer.valueOf(item1).equals(Integer.valueOf(item2));
+    }
+
+    @Override
+    public void onInserted(int position, int count) {
+
+    }
+
+    @Override
+    public void onRemoved(int position, int count) {
+
+    }
+
+    @Override
+    public void onMoved(int fromPosition, int toPosition) {
+
+    }
 }
+

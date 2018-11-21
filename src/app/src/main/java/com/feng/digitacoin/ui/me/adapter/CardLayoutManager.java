@@ -1,4 +1,4 @@
-package org.newtonproject.newpay.android.ui.widget;
+package com.feng.digitacoin.ui.me.adapter;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

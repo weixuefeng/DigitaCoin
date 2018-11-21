@@ -8,7 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import com.feng.digitacoin.R
+import com.feng.digitacoin.extension.inflate
+import com.feng.digitacoin.extension.toast
 import com.feng.digitacoin.ui.BaseFragment
+import com.feng.digitacoin.ui.example.ChooseDateActivity
 import kotlinx.android.synthetic.main.fragment_me.view.*
 
 /**
@@ -18,7 +21,7 @@ import kotlinx.android.synthetic.main.fragment_me.view.*
  * @description
  * @copyright (c) 2018 Newton Foundation. All rights reserved.
  */
-class MeFragment: BaseFragment(), CompoundButton.OnCheckedChangeListener, View.OnClickListener {
+class MeFragment: BaseFragment() {
 
     lateinit var rootView: View
 
@@ -34,9 +37,10 @@ class MeFragment: BaseFragment(), CompoundButton.OnCheckedChangeListener, View.O
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        rootView = LayoutInflater.from(context).inflate(R.layout.fragment_me, container, false)
-        rootView.securitySwitch.setOnCheckedChangeListener(this)
-        rootView.dateLinearLayout.setOnClickListener(this)
+        //rootView = LayoutInflater.from(context).inflate(R.layout.fragment_me, container, false)
+        rootView = container!!.inflate(R.layout.fragment_me)
+        rootView.securitySwitch.setOnCheckedChangeListener { buttonView, isChecked ->   onCheckedChanged(buttonView, isChecked)}
+        rootView.dateLinearLayout.setOnClickListener { startChooseDate() }
         return rootView
     }
 
@@ -45,22 +49,16 @@ class MeFragment: BaseFragment(), CompoundButton.OnCheckedChangeListener, View.O
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun onClick(v: View?) {
-        when(v!!.id) {
-            R.id.dateLinearLayout -> startChooseDate()
-        }
-    }
-
     private fun startChooseDate() {
         val intent = Intent(context, ChooseDateActivity::class.java)
         startActivity(intent)
     }
 
-    override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+    private fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
         if(isChecked) {
-            Log.e(TAG, "Checed")
+            context!!.toast("checked")
         }else{
-            Log.e(TAG, "Unchecked")
+            context!!.toast("unchecked")
         }
     }
 }

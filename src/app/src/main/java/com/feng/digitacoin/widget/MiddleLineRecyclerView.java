@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -34,8 +33,10 @@ public class MiddleLineRecyclerView extends View {
 
     public MiddleLineRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mPaint = new Paint(Color.RED);
-        mPaint.setTextSize(200);
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setColor(Color.parseColor("#35A4D9"));
+        mPaint.setStrokeWidth(4);
     }
 
     @Override
@@ -49,12 +50,9 @@ public class MiddleLineRecyclerView extends View {
 
     @Override
     public void onDraw(Canvas c) {
-        //super.onDraw(c);
         float y1 = top + 1.0f / 3.0f * measuredHeight;
         float y2 = top + 2.0f / 3.0f * measuredHeight;
         float right = left + measuredWidth;
-        Log.e(TAG, "y1:" + y1 + "  left:" + left + "  right:" + right);
-        Log.e(TAG, "y2:" + y2);
         c.drawLine(left,  y1, right, y1, mPaint);
         c.drawLine(left,  y2, right, y2, mPaint);
     }

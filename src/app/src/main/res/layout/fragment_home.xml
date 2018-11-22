@@ -1,74 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:id="@+id/rootView"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <TextView
         android:id="@+id/text"
         android:layout_width="match_parent"
+        android:padding="@dimen/big_padding"
         android:layout_height="wrap_content"
         android:text="@string/title_home"
         />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="@dimen/big_padding"
-        >
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="200dp">
-            <android.support.v7.widget.RecyclerView
-                app:layout_constraintTop_toBottomOf="@id/text"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                android:id="@+id/yearRecycleView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimaryDark"
-                />
-            <com.feng.digitacoin.widget.MiddleLineRecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="200dp">
-            <android.support.v7.widget.RecyclerView
-                app:layout_constraintTop_toBottomOf="@id/text"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                android:id="@+id/monthRecycleView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimaryDark"
-                />
-            <com.feng.digitacoin.widget.MiddleLineRecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="200dp">
-            <android.support.v7.widget.RecyclerView
-                app:layout_constraintTop_toBottomOf="@id/text"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                android:layout_gravity="center"
-                android:id="@+id/dayRecycleView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimaryDark"
-                />
-            <com.feng.digitacoin.widget.MiddleLineRecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </FrameLayout>
-
-    </LinearLayout>
 </android.support.constraint.ConstraintLayout>

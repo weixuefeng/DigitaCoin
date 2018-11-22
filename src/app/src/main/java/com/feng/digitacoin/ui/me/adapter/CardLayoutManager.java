@@ -4,8 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.graphics.PointF;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -131,11 +133,12 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
             measureChildWithMargins(childView, 0, 0);
             childViewMeasureWidth = getDecoratedMeasuredWidth(childView);
             childViewMeasureHeight = getDecoratedMeasuredHeight(childView);
-            // 两边的item居中，todo: 可以配置
+            // 宽：总宽度 - view实际占用欢度宽度 / 2
             startWidthSpace = (mWidth - childViewMeasureWidth) / 2;
             startHeightSpace = (mHeight - childViewMeasureHeight) / 2;
             //startHeightSpace = 0;
             if(mOrientation == LinearLayout.HORIZONTAL) {
+                // view 之间的距离计算
                 widthSpace = startWidthSpace / 2;
                 childViewWidth = childViewMeasureWidth + widthSpace;
                 mTotalWidth = (getItemCount() - 1) * childViewWidth;
@@ -291,13 +294,13 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
     public void onScrollStateChanged(int state) {
         if(state == RecyclerView.SCROLL_STATE_IDLE) {
             int position = findClosestPosition();
-            smoothScrollToPosition(position);
+            scrollToPosition(position);
         }
     }
 
     @Override
     public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
-        //super.smoothScrollToPosition(recyclerView, state, position);
+        super.smoothScrollToPosition(recyclerView, state, position);
         smoothScrollToPosition(position);
     }
 
@@ -306,18 +309,14 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
         if(position < 0 || position >= getItemCount()) {
             throw new IllegalArgumentException(String.format("current position is %s, but total itemCount is %s", position, getItemCount()));
         }
-        stopSmoothAnimation();
-        View childView = mRecycler.getViewForPosition(position);
-        if(childView != null) {
-            int offset;
-            if (mOrientation == LinearLayout.HORIZONTAL) {
-                offset = childView.getLeft() - startWidthSpace;
-                mXoffset = mXoffset - offset;
-            } else {
-                offset = childView.getTop() - startHeightSpace;
-                mYoffset = mYoffset - offset;
-            }
-            requestLayout();
+        if (mOrientation == LinearLayout.HORIZONTAL) {
+            mXoffset = -position * childViewWidth;
+        } else {
+            mYoffset = -position * childViewHeight;
+        }
+        requestLayout();
+        if (onItemSelectedListener != null) {
+            onItemSelectedListener.onSelected(position);
         }
     }
 
@@ -360,7 +359,6 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
                             if(mXoffset <= -mTotalWidth){
                                 mXoffset = -mTotalWidth;
                             }
-                            Log.e(TAG, "mXoffset：" + mXoffset);
                         }else{
                             mYoffset += dx;
                             if(mYoffset >= 0){
@@ -369,7 +367,6 @@ public class CardLayoutManager extends LayoutManager implements RecyclerView.Smo
                             if(mYoffset <= -mTotalHeight){
                                 mYoffset = -mTotalHeight;
                             }
-                            Log.e(TAG, "mYoffset：" + mYoffset);
                         }
                         requestLayout();
                     }

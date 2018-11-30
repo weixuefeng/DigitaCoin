@@ -15,5 +15,4 @@ class ChoosePresenter : BaseMvpPresenterImpl<DateContract.View>(), DateContract.
         val list = listOf<Int>(1, 2, 3)
         mView!!.showList(list)
     }
-
 }

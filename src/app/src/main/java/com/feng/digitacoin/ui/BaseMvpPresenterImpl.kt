@@ -1,5 +1,7 @@
 package com.feng.digitacoin.ui
 
+import java.lang.ref.WeakReference
+
 /**
  * @time: 2018/11/9--3:39 PM
  * @description
@@ -9,14 +11,18 @@ package com.feng.digitacoin.ui
  */
 open class BaseMvpPresenterImpl<V: BaseMvpView> : BaseMvpPresenter<V> {
 
-    protected var mView: V? = null
+    private var mViewWeakReference: WeakReference<V>? = null
+
+    protected var mView : V? = null
 
     override fun attachView(view: V) {
-        mView = view
+        mViewWeakReference = WeakReference<V>(view)
+        mView = mViewWeakReference?.get()
     }
 
     override fun detachView() {
-        mView = null
+        mViewWeakReference?.clear()
+        mViewWeakReference = null
     }
 
 }

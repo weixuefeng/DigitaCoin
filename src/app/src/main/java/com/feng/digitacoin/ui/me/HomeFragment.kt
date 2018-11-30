@@ -1,5 +1,6 @@
 package com.feng.digitacoin.ui.me
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -11,6 +12,7 @@ import com.feng.digitacoin.R
 import com.feng.digitacoin.entity.DateBean
 import com.feng.digitacoin.ui.BaseFragment
 import com.feng.digitacoin.ui.components.DateChoosePopuwindow
+import com.feng.digitacoin.ui.example.SecondActivity
 import com.feng.digitacoin.ui.me.adapter.CardLayoutManager
 import com.feng.digitacoin.ui.me.adapter.WalletRecyclerViewAdapter
 import kotlinx.android.synthetic.main.fragment_home.view.*
@@ -44,7 +46,12 @@ class HomeFragment: BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "OnViewCreated")
         super.onViewCreated(view, savedInstanceState)
-        view.text.setOnClickListener { showDateChoosePopuwindow() }
+        view.text.setOnClickListener { gotoSecondActivity() }
+    }
+
+    private fun gotoSecondActivity() {
+        val intent = Intent(context, SecondActivity::class.java)
+        startActivity(intent)
     }
 
     private fun showDateChoosePopuwindow() {
